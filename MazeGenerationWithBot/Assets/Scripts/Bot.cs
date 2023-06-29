@@ -2,13 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
 
 /// <summary>
-/// O bot nao consegue percorrer em mapas com tamanho impar, e nao consegue capturar descobrir onde estao as chaves para a saida, mas consegue eliminiar os caminhos que ja foram totalmente percorridos.
+/// O bot não consegue percorrer em mapas com tamanho impar, e não consegue descobrir onde estão as chaves para a saída, mas consegue eliminiar os caminhos que ja foram totalmente percorridos.
 /// </summary>
-public class MazeBotControl : MonoBehaviour
+public class Bot : MonoBehaviour
 {
     [SerializeField] private GameObject completedTrackPath;
     [SerializeField] private GameObject exitTrackPath;
@@ -17,7 +15,8 @@ public class MazeBotControl : MonoBehaviour
     [SerializeField] private List<Vector3> pathWalked = new List<Vector3>();
     [SerializeField] private List<Vector3> pathCompleted = new List<Vector3>();
     [SerializeField] private List<Vector3> pathExit = new List<Vector3>();
-    [SerializeField] private List<Vector3> directions = new List<Vector3>();
+    [SerializeField] private List<Vector3> freeDirectionsAtCrossing = new List<Vector3>();
+    private List<Vector3> directions = new List<Vector3>();
     private RaycastHit[] hit = new RaycastHit[4];
     private bool afterCrossingPath;
     private bool isInExitPath;
@@ -134,6 +133,7 @@ public class MazeBotControl : MonoBehaviour
         pathWalked.Clear();
         pathWalked.Add(transform.position);
         pathExit.Add(transform.position);
+        CreatePathTrack(transform.position, exitTrackPath);
 
         for (int i = 0; i < freeDirection.Count; i++)
         {
@@ -148,11 +148,11 @@ public class MazeBotControl : MonoBehaviour
 
     private Vector3 LockedBetweenWalls(List<Vector3> freeDirection)
     {
-        Vector3 finalDirection;
-        finalDirection = new Vector3(transform.position.x, transform.position.y, transform.position.z) + freeDirection[0];
+        Vector3 finalDirection = new Vector3(transform.position.x, transform.position.y, transform.position.z) + freeDirection[0];
         pathWalked.Clear();
         pathWalked.Add(transform.position);
         pathCompleted.Add(transform.position);
+        CreatePathTrack(transform.position, completedTrackPath);
 
         afterCrossingPath = false;
         return finalDirection;
@@ -171,11 +171,12 @@ public class MazeBotControl : MonoBehaviour
             if (isInExitPath)
             {
                 pathExit.Add(transform.position);
+                CreatePathTrack(transform.position, exitTrackPath);
             }
             if (!afterCrossingPath)
             {
                 pathCompleted.Add(transform.position);
-                pathExit.Add(transform.position);
+                CreatePathTrack(transform.position, completedTrackPath);
             }
         }
         return finalDirection;
@@ -201,7 +202,7 @@ public class MazeBotControl : MonoBehaviour
             {
                 afterCrossingPath = false;
                 pathCompleted.Add(transform.position);
-                pathExit.Add(transform.position);
+                CreatePathTrack(transform.position, completedTrackPath);
             }
             else
             {
@@ -249,10 +250,25 @@ public class MazeBotControl : MonoBehaviour
                     pathWalked.Clear();
                     pathWalked.Add(transform.position);
                     pathExit.Add(transform.position);
+                    CreatePathTrack(transform.position, exitTrackPath);
+                }
+            }
+            else
+            {
+                if (completedQuantity == completedQuantityCompare - 1 && exitQuantity == 1)
+                {
+                    isInExitPath = true;
+                    pathExit.Add(transform.position);
+                    CreatePathTrack(transform.position, exitTrackPath);
                 }
             }
         }
         return finalDirection;
+    }
+
+    private void CreatePathTrack(Vector3 position, GameObject trackType)
+    {
+        Instantiate(trackType, position + Vector3.up * 2, trackType.transform.rotation);
     }
 
     struct ObjectsPositions
@@ -287,14 +303,14 @@ public class MazeBotControl : MonoBehaviour
     }
 }
 
-[CustomEditor(typeof(MazeBotControl))]
+[CustomEditor(typeof(Bot))]
 public class MazeBotControlEditor : Editor
 {
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
 
-        MazeBotControl mazeBotControl = (MazeBotControl)target;
+        Bot mazeBotControl = (Bot)target;
 
         if (GUILayout.Button("Awake Bot"))
         {
