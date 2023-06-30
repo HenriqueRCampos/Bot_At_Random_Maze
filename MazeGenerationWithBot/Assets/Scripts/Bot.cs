@@ -10,12 +10,12 @@ public class Bot : MonoBehaviour
 {
     [SerializeField] private GameObject completedTrackPath;
     [SerializeField] private GameObject exitTrackPath;
-    [Range(0, 1.5f)]
-    [SerializeField] private float movSpeed = 1;
+    [Range(0.05f, 1.5f)]
+    [SerializeField] private float delayToMovement = 0.05f;
     [SerializeField] private List<Vector3> pathWalked = new List<Vector3>();
     [SerializeField] private List<Vector3> pathCompleted = new List<Vector3>();
     [SerializeField] private List<Vector3> pathExit = new List<Vector3>();
-    [SerializeField] private List<Vector3> freeDirectionsAtCrossing = new List<Vector3>();
+    [SerializeField] private List<GameObject> exitTrackInstances = new List<GameObject>();
     private List<Vector3> directions = new List<Vector3>();
     private RaycastHit[] hit = new RaycastHit[4];
     private bool afterCrossingPath;
@@ -44,7 +44,7 @@ public class Bot : MonoBehaviour
 
     private IEnumerator MoveBot()
     {
-        yield return new WaitForSeconds(movSpeed);
+        yield return new WaitForSeconds(delayToMovement);
         Vector3 movDirection = DirectionRay();
 
         gameObject.transform.position = movDirection;
@@ -168,7 +168,7 @@ public class Bot : MonoBehaviour
             {
                 finalDirection = nextPosition;
             }
-            if (isInExitPath)
+            if (isInExitPath && mazeGenerator.CoinsCount > 0)
             {
                 pathExit.Add(transform.position);
                 CreatePathTrack(transform.position, exitTrackPath);
@@ -184,12 +184,15 @@ public class Bot : MonoBehaviour
 
     private Vector3 CrossingPathDirections(List<Vector3> freeDirection, int blockeDirectionCompare, int blockedPathCompare, int completedQuantityCompare)
     {
+        List<Vector3> currentFreeDirections = new List<Vector3>();
         Vector3 finalDirection = Vector3.zero;
         Vector3 exitDirection = Vector3.zero;
+
         int blockedPath = 0;
         int blockeDirection = 0;
         int completedQuantity = 0;
         int exitQuantity = 0;
+
         for (int i = 0; i < freeDirection.Count; i++)
         {
             Vector3 nextDirection = new Vector3(transform.position.x, transform.position.y, transform.position.z) + freeDirection[i];
@@ -212,7 +215,8 @@ public class Bot : MonoBehaviour
 
             if (!pathWalked.Contains(nextDirection) && !pathCompleted.Contains(nextDirection) && !pathExit.Contains(nextDirection))
             {
-                finalDirection = nextDirection;
+                currentFreeDirections.Add(nextDirection);
+                finalDirection = currentFreeDirections[Random.Range(0, currentFreeDirections.Count)];
             }
 
             if (pathWalked.Contains(nextDirection) || pathCompleted.Contains(nextDirection) || pathExit.Contains(nextDirection))
@@ -234,6 +238,13 @@ public class Bot : MonoBehaviour
                 {
                     pathExit.Clear();
                     finalDirection = exitDirection;
+                    if (mazeGenerator.CoinsCount <= 0)
+                    {
+                        foreach (GameObject obj in exitTrackInstances)
+                        {
+                            obj.SetActive(false);
+                        }
+                    }
                 }
                 else
                 {
@@ -268,7 +279,14 @@ public class Bot : MonoBehaviour
 
     private void CreatePathTrack(Vector3 position, GameObject trackType)
     {
-        Instantiate(trackType, position + Vector3.up * 2, trackType.transform.rotation);
+        if (trackType == exitTrackPath)
+        {
+            exitTrackInstances.Add(Instantiate(trackType, position + Vector3.up * 2, trackType.transform.rotation));
+        }
+        else
+        {
+            Instantiate(trackType, position + Vector3.up * 2, trackType.transform.rotation);
+        }
     }
 
     struct ObjectsPositions

@@ -152,7 +152,7 @@ Light:
   m_Type: 1
   m_Shape: 0
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 0.7
+  m_Intensity: 0.8
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -294,7 +294,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 15, z: 0}
+  m_LocalPosition: {x: 0, y: 15, z: -0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -334,7 +334,7 @@ MonoBehaviour:
   bot: {fileID: 1955868808057875032, guid: 6d953d6bfbfc8fc4da152c916d92aa76, type: 3}
   item: {fileID: 1213329181928858693, guid: 09f6858d6954e784b9d14e9f41c8008c, type: 3}
   exitLab: {fileID: 440860217671378757, guid: 9b8f65349c096a240a9e9d955fc5850a, type: 3}
-  mazeSize: {x: 20, y: 20}
+  mazeSize: {x: 14, y: 14}
   coinsCount: 0
 --- !u!4 &2072692772
 Transform:

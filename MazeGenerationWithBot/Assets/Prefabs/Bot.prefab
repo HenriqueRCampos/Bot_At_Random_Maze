@@ -112,8 +112,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   completedTrackPath: {fileID: 440860217671378757, guid: 0563b7d21877b8542a50d13108849760, type: 3}
   exitTrackPath: {fileID: 440860217671378757, guid: 9a6715684da99fd43b09dd7068854948, type: 3}
-  movSpeed: 0.5
+  delayToMovement: 0.05
   pathWalked: []
   pathCompleted: []
   pathExit: []
-  directions: []
+  exitTrackInstances: []
