@@ -7,7 +7,7 @@ public class MazeGenerator : MonoBehaviour
     [SerializeField] private MazeNode nodePrefab;
     [SerializeField] private GameObject bot;
     [SerializeField] private GameObject key;
-    [SerializeField] private GameObject exitLab;
+    [SerializeField] private GameObject mazeExit;
     [SerializeField] private Vector2Int mazeSize;
     [SerializeField] private int coinsCount;
 
@@ -108,7 +108,7 @@ public class MazeGenerator : MonoBehaviour
                     if (CoinsCount == 4)
                     {
                         Transform exitPath = currentPath[currentPath.Count - 1].transform;
-                        Instantiate(exitLab, exitPath.position, exitLab.transform.rotation);
+                        Instantiate(mazeExit, exitPath.position, mazeExit.transform.rotation);
                         CoinsCount++;
                     }
                     else
