@@ -6,10 +6,9 @@ public class MazeGenerator : MonoBehaviour
 {
     [SerializeField] private MazeNode nodePrefab;
     [SerializeField] private GameObject bot;
-    [SerializeField] private GameObject item;
+    [SerializeField] private GameObject key;
     [SerializeField] private GameObject exitLab;
-    [Tooltip("Use just pair values")]
-    [SerializeField] private Vector2Int mazeSize;   // o bot buga em mapas de tamanho impar, usar somente numeros pares;
+    [SerializeField] private Vector2Int mazeSize;
     [SerializeField] private int coinsCount;
 
     private List<MazeNode> currentPath = new List<MazeNode>();
@@ -115,7 +114,7 @@ public class MazeGenerator : MonoBehaviour
                     else
                     {
                         Transform blockedPath = currentPath[currentPath.Count - 1].transform;
-                        Instantiate(item, blockedPath.position, item.transform.rotation);
+                        Instantiate(key, blockedPath.position, key.transform.rotation);
                         CoinsCount++;
                     }
                 }
@@ -126,7 +125,6 @@ public class MazeGenerator : MonoBehaviour
         }
         if (completedNodes.Count == nodes.Count)
         {
-            // finish maze generation
             CoinsCount--;
         }
     }

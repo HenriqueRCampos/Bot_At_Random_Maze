@@ -332,9 +332,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodePrefab: {fileID: 5016774553821132822, guid: 921596c9a39c5c24d9911066ca072775, type: 3}
   bot: {fileID: 1955868808057875032, guid: 6d953d6bfbfc8fc4da152c916d92aa76, type: 3}
-  item: {fileID: 1213329181928858693, guid: 09f6858d6954e784b9d14e9f41c8008c, type: 3}
+  key: {fileID: 1213329181928858693, guid: 09f6858d6954e784b9d14e9f41c8008c, type: 3}
   exitLab: {fileID: 440860217671378757, guid: 9b8f65349c096a240a9e9d955fc5850a, type: 3}
-  mazeSize: {x: 14, y: 14}
+  mazeSize: {x: 15, y: 15}
   coinsCount: 0
 --- !u!4 &2072692772
 Transform:

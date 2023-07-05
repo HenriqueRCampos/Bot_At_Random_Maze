@@ -3,104 +3,102 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// O bot não consegue percorrer em mapas com tamanho impar, e não consegue descobrir onde estão as chaves para a saída, mas consegue eliminiar os caminhos que ja foram totalmente percorridos.
-/// </summary>
 public class Bot : MonoBehaviour
 {
-    [SerializeField] private GameObject completedTrackPath;
-    [SerializeField] private GameObject exitTrackPath;
     [Range(0.05f, 1.5f)]
     [SerializeField] private float delayToMovement = 0.05f;
-    [SerializeField] private List<Vector3> pathWalked = new List<Vector3>();
-    [SerializeField] private List<Vector3> pathCompleted = new List<Vector3>();
-    [SerializeField] private List<Vector3> pathExit = new List<Vector3>();
-    [SerializeField] private List<GameObject> exitTrackInstances = new List<GameObject>();
-    private List<Vector3> directions = new List<Vector3>();
-    private RaycastHit[] hit = new RaycastHit[4];
+    [SerializeField] private GameObject completedTrackPath;
+    [SerializeField] private GameObject exitTrackPath;
+
+    private List<Vector3> pathWalked = new List<Vector3>();
+    private List<Vector3> pathCompleted = new List<Vector3>();
+    private List<Vector3> pathExit = new List<Vector3>();
+    private List<GameObject> exitTrackInstances = new List<GameObject>();
+    private List<Vector3> botAxisDirections = new List<Vector3>();
+    private RaycastHit[] raycastHits = new RaycastHit[4];
+
+    private MazeGenerator mazeGeneratorScript;
+    private Vector3 movDirection;
+    private Vector3 exitMazePosition;
+    private Vector3 botSideToExitPosition;
     private bool afterCrossingPath;
     private bool isInExitPath;
 
-    private MazeGenerator mazeGenerator;
-    private Vector3 movDirection;
-    private Vector3 exitLabPosition;
-    private Vector3 botSideToExitPosition;
-
     private void Start()    
     {
-        directions.Add(transform.TransformDirection(Vector3.forward));
-        directions.Add(transform.TransformDirection(Vector3.right));
-        directions.Add(transform.TransformDirection(Vector3.back));
-        directions.Add(transform.TransformDirection(Vector3.left));
+        botAxisDirections.Add(transform.TransformDirection(Vector3.forward));
+        botAxisDirections.Add(transform.TransformDirection(Vector3.right));
+        botAxisDirections.Add(transform.TransformDirection(Vector3.back));
+        botAxisDirections.Add(transform.TransformDirection(Vector3.left));
 
-        mazeGenerator = GameObject.FindGameObjectWithTag("Generator").GetComponent<MazeGenerator>();
+        mazeGeneratorScript = GameObject.FindGameObjectWithTag("Generator").GetComponent<MazeGenerator>();
     }
 
     public void StartBot()
     {
         StartCoroutine(MoveBot());
-        exitLabPosition = GameObject.FindGameObjectWithTag("Exit").transform.position;
+        exitMazePosition = GameObject.FindGameObjectWithTag("Exit").transform.position;
     }
 
     private IEnumerator MoveBot()
     {
         yield return new WaitForSeconds(delayToMovement);
-        Vector3 movDirection = DirectionRay();
+        Vector3 movDirection = DirectionRaycastHits();
 
         gameObject.transform.position = movDirection;
         yield return MoveBot();
     }
 
-    private Vector3 DirectionRay()
+    private Vector3 DirectionRaycastHits()
     {
         List<Vector3> freeDirections = new List<Vector3>();
-        ObjectsPositions objPosition = new ObjectsPositions();
-        objPosition.wall = new List<Vector3>();
-        objPosition.coin = new List<Vector3>();
+        CollidingObjects collidingObjects = new CollidingObjects();
+        collidingObjects.wall = new List<Vector3>();
+        collidingObjects.coin = new List<Vector3>();
         Vector3 direction;
 
-        for (int i = 0; i < directions.Count; i++)
+        for (int i = 0; i < botAxisDirections.Count; i++)
         {
-            if (!Physics.Raycast(transform.position, directions[i], out hit[i], 1))
+            if (!Physics.Raycast(transform.position, botAxisDirections[i], out raycastHits[i], 1))
             {
-                freeDirections.Add(directions[i]);
+                freeDirections.Add(botAxisDirections[i]);
             }
-            if (Physics.Raycast(transform.position, directions[i], out hit[i], 1))
+            if (Physics.Raycast(transform.position, botAxisDirections[i], out raycastHits[i], 1))
             {
-                switch (hit[i].collider.tag)
+                switch (raycastHits[i].collider.tag)
                 {
                     case "Wall":
-                        objPosition.wall.Add(directions[i]);
+                        collidingObjects.wall.Add(botAxisDirections[i]);
                         break;
                     case "Coin":
-                        objPosition.coin.Add(directions[i]);
+                        collidingObjects.coin.Add(botAxisDirections[i]);
                         break;
                     case "Exit":
-                        objPosition.exit = directions[i];
+                        collidingObjects.exit = botAxisDirections[i];
                         botSideToExitPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
                         break;
                 }
             }
         }
-        direction = MovDirection(freeDirections, objPosition);
+        direction = DirectionToMove(freeDirections, collidingObjects);
         return direction;
     }
 
-    private Vector3 MovDirection(List<Vector3> freeDirection, ObjectsPositions objPos)
+    private Vector3 DirectionToMove(List<Vector3> freeDirection, CollidingObjects collidingObjects)
     {
-        if (objPos.coin.Count > 0)
+        if (collidingObjects.coin.Count > 0)
         {
-            movDirection = new Vector3(transform.position.x, transform.position.y, transform.position.z) + objPos.coin[0];
+            movDirection = new Vector3(transform.position.x, transform.position.y, transform.position.z) + collidingObjects.coin[0];
         }
-        else if (objPos.exit != Vector3.zero && mazeGenerator.CoinsCount <= 0)
+        else if (collidingObjects.exit != Vector3.zero && mazeGeneratorScript.CoinsCount <= 0)
         {
-            movDirection = new Vector3(transform.position.x, transform.position.y, transform.position.z) + objPos.exit;
+            movDirection = new Vector3(transform.position.x, transform.position.y, transform.position.z) + collidingObjects.exit;
         }
-        else if (botSideToExitPosition + objPos.exit == exitLabPosition && mazeGenerator.CoinsCount > 0)
+        else if (botSideToExitPosition + collidingObjects.exit == exitMazePosition && mazeGeneratorScript.CoinsCount > 0)
         {
-            movDirection = FoundExitButDosntCollectAllKeys(freeDirection);
+            movDirection = FindedExitButDoesntCollectedAllKeys(freeDirection);
         }
-        else if (objPos.wall.Count == 3)
+        else if (collidingObjects.wall.Count == 3)
         {
             movDirection = LockedBetweenWalls(freeDirection);
         }
@@ -125,7 +123,7 @@ public class Bot : MonoBehaviour
         return movDirection;
     }
 
-    private Vector3 FoundExitButDosntCollectAllKeys(List<Vector3> freeDirection)
+    private Vector3 FindedExitButDoesntCollectedAllKeys(List<Vector3> freeDirection)
     {
         Vector3 finalDirection = Vector3.zero;
         afterCrossingPath = true;
@@ -168,7 +166,7 @@ public class Bot : MonoBehaviour
             {
                 finalDirection = nextPosition;
             }
-            if (isInExitPath && mazeGenerator.CoinsCount > 0)
+            if (isInExitPath && mazeGeneratorScript.CoinsCount > 0)
             {
                 pathExit.Add(transform.position);
                 CreatePathTrack(transform.position, exitTrackPath);
@@ -238,7 +236,7 @@ public class Bot : MonoBehaviour
                 {
                     pathExit.Clear();
                     finalDirection = exitDirection;
-                    if (mazeGenerator.CoinsCount <= 0)
+                    if (mazeGeneratorScript.CoinsCount <= 0)
                     {
                         foreach (GameObject obj in exitTrackInstances)
                         {
@@ -277,25 +275,25 @@ public class Bot : MonoBehaviour
         return finalDirection;
     }
 
-    private void CreatePathTrack(Vector3 position, GameObject trackType)
+    private void CreatePathTrack(Vector3 instancePosition, GameObject trackInstanceObj)
     {
-        if (trackType == exitTrackPath)
+        if (trackInstanceObj == exitTrackPath)
         {
-            exitTrackInstances.Add(Instantiate(trackType, position + Vector3.up * 2, trackType.transform.rotation));
+            exitTrackInstances.Add(Instantiate(trackInstanceObj, instancePosition + Vector3.up * 2, trackInstanceObj.transform.rotation));
         }
         else
         {
-            Instantiate(trackType, position + Vector3.up * 2, trackType.transform.rotation);
+            Instantiate(trackInstanceObj, instancePosition + Vector3.up * 2, trackInstanceObj.transform.rotation);
         }
     }
 
-    struct ObjectsPositions
+    struct CollidingObjects
     {
         public List<Vector3> wall;
         public List<Vector3> coin;
         public Vector3 exit;
 
-        public ObjectsPositions(List<Vector3> wall, List<Vector3> coin, Vector3 exit)
+        public CollidingObjects(List<Vector3> wall, List<Vector3> coin, Vector3 exit)
         {
             this.wall = new List<Vector3>();
             this.coin = new List<Vector3>();
@@ -310,13 +308,12 @@ public class Bot : MonoBehaviour
         if (other.gameObject.CompareTag("Coin"))
         {
             other.gameObject.SetActive(false);
-            mazeGenerator.CoinsCount--;
+            mazeGeneratorScript.CoinsCount--;
         }
         if (other.gameObject.CompareTag("Exit"))
         {
             other.gameObject.SetActive(false);
             gameObject.SetActive(false);
-            Debug.Log("GG");
         }
     }
 }
