@@ -16,5 +16,5 @@ A random maze generation, with keys for the bot collect and unlock exit.
 ## Video
 https://github.com/HenriqueRCampos/Bot_At_Random_Maze/assets/107483658/20964f1c-240d-43ad-8c75-7548e80e7dc7
 
-## Referências
+## References
 Tutorial: [How to Make a Maze Generation Algorithm in Unity](https://youtu.be/OutlTTOm17M)
