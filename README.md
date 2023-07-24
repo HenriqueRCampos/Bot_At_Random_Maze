@@ -2,6 +2,9 @@
 # Bot At Random Maze
 A random maze generation, with keys for the bot collect and unlock exit.
 
+This project was made to practice Maze Generation Algorithm, to understand how it works and his implementation.
+After that, to use the maze for something, I decide to create a simple bot that was try to escape from maze.
+
 <div>
   <img src="https://github.com/HenriqueRCampos/UnityHTracking/assets/107483658/2a16e3cf-e6f6-4ede-a46c-9932ee9be00b" width=px align="center"/>
 </div>
