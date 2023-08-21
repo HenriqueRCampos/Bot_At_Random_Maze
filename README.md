@@ -27,7 +27,7 @@ Every movement of bot is tracked, like paths that he already completed(where the
   - Keys 🟡
 > "Current walked path" its just a reference for bot, it isn't dreawed.
 
-To up, down, left, right of the bot, it has a line RayCast with a maximum distance set to one, it is used to get a GameObject collider, like:
+To up, down, left and right of the bot, it has a line RayCast with a maximum distance set to one, it is used to get a GameObject collider, like:
   - Wall;
   - Key;
   - Maze exit;
