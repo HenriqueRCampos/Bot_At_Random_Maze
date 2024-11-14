@@ -1,5 +1,5 @@
 
-# Bot At Random Maze
+# Bot In Random Maze
 A random maze generation, with keys for the bot collect and unlock exit.
 
 This project was made to practice Maze Generation Algorithm, to understand how it works and his implementation.
@@ -8,7 +8,7 @@ After that, to use the maze for something, I decide to create a simple bot that 
 ### Note
 To this project I used the RayCast class from Unity, to detect and find the best direction to bot moves, then eventualy unlock and go to maze exit. However isn't best form, but is simple and can be useful, case you want that bot goes to diferent paths before exit from maze.
 
-To find the bester and faster path to exit is common use the [Dijkstra's Algorithm](https://www.freecodecamp.org/news/dijkstras-shortest-path-algorithm-visual-introduction/#:~:text=Dijkstra's%20Algorithm%20finds%20the%20shortest,node%20and%20all%20other%20nodes.), a powerfull Pathfinding algorithm.
+To find a better and faster path to exit is common use the [Dijkstra's Algorithm](https://www.freecodecamp.org/news/dijkstras-shortest-path-algorithm-visual-introduction/#:~:text=Dijkstra's%20Algorithm%20finds%20the%20shortest,node%20and%20all%20other%20nodes.), a powerfull Pathfinding algorithm.
 
 >"Where you can find the shortest path between nodes in a graph. Particularly, you can find the shortest path from a node (called the "source node") to all other nodes in the graph, producing a shortest-path tree".
     
